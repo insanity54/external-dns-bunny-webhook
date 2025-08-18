@@ -15,6 +15,7 @@ dockerTools.streamLayeredImage {
   contents = [
     external-dns-bunny-webhook
     dockerTools.binSh
+    dockerTools.caCertificates
   ];
 
   maxLayers = 120;
