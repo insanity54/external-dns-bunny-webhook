@@ -45,6 +45,7 @@
           name = "external-dns-bunny-webhook";
           packages = with pkgs; [
             go
+            gopls
           ];
         }
       );
