@@ -4,7 +4,6 @@
   dockerTools,
   external-dns-bunny-webhook,
   external-dns-bunny-webhook-rev,
-  ...
 }:
 let
   spec = {

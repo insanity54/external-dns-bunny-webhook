@@ -24,6 +24,8 @@ buildGoModule {
 
   vendorHash = "sha256-goHQNnDh2vzfnIMlIhY5QgJ0StioG54QHSC3VvP9Y+U=";
 
+  env.CGO_ENABLED = if withStatic then 1 else 0;
+
   ldflags = optionals withStatic [
     "-linkmode external"
     "-extldflags -static"
