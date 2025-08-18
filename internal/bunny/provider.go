@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"maps"
 	"regexp"
 	"strconv"
 	"strings"
@@ -312,9 +313,7 @@ func (p *Provider) AdjustEndpoints(incoming []*endpoint.Endpoint) ([]*endpoint.E
 				continue
 			}
 
-			for key, value := range checked.Labels {
-				editing.Labels[key] = value
-			}
+			maps.Copy(editing.Labels, checked.Labels)
 		}
 	}
 
@@ -585,14 +584,20 @@ func (p *Provider) fetchZones(ctx context.Context) ([]*Zone, error) {
 	return zones, nil
 }
 
-// extractRecordComponents extracts the record name and zone from a given DNS name
-// by matching the DNS name with the list of available zones. If a match cannot be
-// found, the function returns false as the third argument. When a match is found,
-// the function returns the record name, zone, and true as the third argument.
+// Match the given `dnsName` to one of the `zones`.
+//
+// The first return result is the record prefix, which may be the empty string
+// if dnsName matches a zone exactly (i.e. a root record).
+//
+// The second return result is the matched zone.
+//
+// The third return result denotes whether the search was successful.
 func extractRecordComponents(zones []string, dnsName string) (string, string, bool) {
 	for _, zone := range zones {
-		if strings.HasSuffix(dnsName, zone) {
-			return dnsName[:len(dnsName)-len(zone)-1], zone, true
+		if dnsName == zone {
+			return "", zone, true
+		} else if strings.HasSuffix(dnsName, "."+zone) {
+			return strings.TrimSuffix(dnsName, "."+zone), zone, true
 		}
 	}
 

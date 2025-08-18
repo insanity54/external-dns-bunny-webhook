@@ -5,8 +5,14 @@ import (
 )
 
 func recordToEndpoint(domain string, record *Record) *endpoint.Endpoint {
+	var dnsName string
+	if record.Name == "" {
+		dnsName = domain
+	} else {
+		dnsName = record.Name + "." + domain
+	}
 	ep := endpoint.NewEndpointWithTTL(
-		record.Name+"."+domain,
+		dnsName,
 		record.Type.String(),
 		endpoint.TTL(record.TTLSeconds),
 		record.Value,
