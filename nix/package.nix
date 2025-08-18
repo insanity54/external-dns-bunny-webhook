@@ -1,9 +1,11 @@
 {
   lib,
   buildGoModule,
-  ...
+  withStatic ? false,
 }:
 let
+  inherit (lib) optionals;
+
   src = lib.fileset.toSource rec {
     root = ../.;
     fileset = lib.fileset.unions [
@@ -21,4 +23,9 @@ buildGoModule {
   inherit src;
 
   vendorHash = "sha256-goHQNnDh2vzfnIMlIhY5QgJ0StioG54QHSC3VvP9Y+U=";
+
+  ldflags = optionals withStatic [
+    "-linkmode external"
+    "-extldflags -static"
+  ];
 }

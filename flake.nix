@@ -28,9 +28,16 @@
           default = external-dns-bunny-webhook;
 
           external-dns-bunny-webhook = pkgs.callPackage ./nix/package.nix { };
+          external-dns-bunny-webhook-static = pkgs.pkgsStatic.callPackage ./nix/package.nix {
+            withStatic = true;
+          };
 
           external-dns-bunny-webhook-docker = pkgs.callPackage ./nix/docker.nix {
-            inherit external-dns-bunny-webhook;
+            external-dns-bunny-webhook =
+              if builtins.elem system pkgs.lib.platforms.darwin then
+                external-dns-bunny-webhook
+              else
+                external-dns-bunny-webhook-static;
             external-dns-bunny-webhook-rev = self.rev or "dev";
           };
         }
