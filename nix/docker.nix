@@ -9,6 +9,7 @@ dockerTools.streamLayeredImage {
   tag = external-dns-bunny-webhook-rev;
   config = {
     Cmd = [ "/bin/webhook" ];
+    User = "1000:1000";
   };
 
   contents = [
