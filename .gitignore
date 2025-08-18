@@ -26,3 +26,6 @@ go.work.sum
 
 # Local scratch space for tests
 .local
+
+# Nix build result
+/result
