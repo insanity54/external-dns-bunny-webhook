@@ -1,11 +1,20 @@
 {
-  lib,
-  system,
+  buildEnv,
   dockerTools,
   external-dns-bunny-webhook,
   external-dns-bunny-webhook-rev,
 }:
 let
+  paths = [
+    external-dns-bunny-webhook
+    dockerTools.caCertificates
+  ];
+
+  pathsToLink = [
+    "/bin"
+    "/etc"
+  ];
+
   spec = {
     name = "nossa.ee/talya/external-dns-bunny-webhook";
     tag = external-dns-bunny-webhook-rev;
@@ -13,14 +22,23 @@ let
       Cmd = [ "/bin/webhook" ];
       User = "1000:1000";
     };
-
-    contents = [
-      external-dns-bunny-webhook
-      dockerTools.caCertificates
-    ];
   };
 in
-if builtins.elem system lib.platforms.darwin then
-  dockerTools.buildImage spec
-else
-  dockerTools.streamLayeredImage (spec // { maxLayers = 120; })
+{
+  build = dockerTools.buildImage (
+    spec
+    // {
+      copyToRoot = buildEnv {
+        name = "external-dns-bunny-webhook-root";
+        inherit paths pathsToLink;
+      };
+    }
+  );
+  stream-layered = dockerTools.streamLayeredImage (
+    spec
+    // {
+      contents = paths;
+      maxLayers = 120;
+    }
+  );
+}
