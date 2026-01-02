@@ -67,7 +67,18 @@ func providerSpecificOptionsFromRecord(r *Record) *providerSpecificOptions {
 }
 
 func (p *providerSpecificOptions) ApplyToEndpoint(e *endpoint.Endpoint) {
-	e.WithProviderSpecific(providerSpecificMonitorType, p.MonitorType.String())
-	e.WithProviderSpecific(providerSpecificWeight, strconv.Itoa(p.Weight))
-	e.WithProviderSpecific(providerSpecificDisabled, strconv.FormatBool(p.Disabled))
+	// Don't apply default values, so external-dns doesn't try to reconcile them
+	// back to non-existence.
+	// XXX: this does imply that an attempt to actually set the defaults with
+	// annotations will then be reconciled constantly back into existence.
+	if p.MonitorType != MonitorTypeNone {
+		e.WithProviderSpecific(providerSpecificMonitorType, p.MonitorType.String())
+	}
+	// HACK: some record types don't support weight, in which case it's zero.
+	if p.Weight != 0 && p.Weight != 100 {
+		e.WithProviderSpecific(providerSpecificWeight, strconv.Itoa(p.Weight))
+	}
+	if p.Disabled {
+		e.WithProviderSpecific(providerSpecificDisabled, strconv.FormatBool(p.Disabled))
+	}
 }
