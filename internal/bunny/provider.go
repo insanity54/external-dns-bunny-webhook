@@ -141,16 +141,16 @@ func (p *Provider) ApplyChanges(ctx context.Context, changes *plan.Changes) erro
 		return nil
 	}
 
-	var dnsNames []string
+	var dnsTypesAndNames [][2]string
 	for _, ep := range changes.Delete {
-		dnsNames = append(dnsNames, ep.DNSName)
+		dnsTypesAndNames = append(dnsTypesAndNames, [2]string{ep.RecordType, ep.DNSName})
 	}
 
 	for _, ep := range changes.UpdateOld {
-		dnsNames = append(dnsNames, ep.DNSName)
+		dnsTypesAndNames = append(dnsTypesAndNames, [2]string{ep.RecordType, ep.DNSName})
 	}
 
-	tuples, err := p.fetchIdentifiers(ctx, dnsNames)
+	tuples, err := p.fetchIdentifiers(ctx, dnsTypesAndNames)
 	if err != nil {
 		slog.Error("Failed to fetch identifiers",
 			slog.Any("error", err))
@@ -205,13 +205,13 @@ func (p *Provider) applyChangesDryRun(ctx context.Context, changes *plan.Changes
 		return nil
 	}
 
-	var dnsNames []string
+	var dnsNames [][2]string
 	for _, ep := range changes.Delete {
-		dnsNames = append(dnsNames, ep.DNSName)
+		dnsNames = append(dnsNames, [2]string{ep.RecordType, ep.DNSName})
 	}
 
 	for _, ep := range changes.UpdateOld {
-		dnsNames = append(dnsNames, ep.DNSName)
+		dnsNames = append(dnsNames, [2]string{ep.RecordType, ep.DNSName})
 	}
 
 	tuples, err := p.fetchIdentifiers(ctx, dnsNames)
@@ -223,7 +223,7 @@ func (p *Provider) applyChangesDryRun(ctx context.Context, changes *plan.Changes
 	}
 
 	for _, ep := range changes.Delete {
-		tuple, ok := tuples[ep.DNSName]
+		tuple, ok := tuples[[2]string{ep.RecordType, ep.DNSName}]
 		if !ok {
 			slog.InfoContext(ctx, "DRY RUN: Delete record (would skip, not found in Bunny API)",
 				slog.Group("record",
@@ -248,7 +248,7 @@ func (p *Provider) applyChangesDryRun(ctx context.Context, changes *plan.Changes
 	}
 
 	for _, ep := range changes.UpdateOld {
-		tuple, ok := tuples[ep.DNSName]
+		tuple, ok := tuples[[2]string{ep.RecordType, ep.DNSName}]
 		if !ok {
 			slog.InfoContext(ctx, "DRY RUN: Update record (would skip, not found in Bunny API)",
 				slog.Group("current",
@@ -428,9 +428,9 @@ func (p *Provider) createEndpoints(ctx context.Context, creates []*endpoint.Endp
 }
 
 // updateEndpoints updates the given endpoints.
-func (p *Provider) updateEndpoints(ctx context.Context, identifiers map[string]identifierTuple, updates []*endpoint.Endpoint) error {
+func (p *Provider) updateEndpoints(ctx context.Context, identifiers map[[2]string]identifierTuple, updates []*endpoint.Endpoint) error {
 	for _, update := range updates {
-		tuple, ok := identifiers[update.DNSName]
+		tuple, ok := identifiers[[2]string{update.RecordType, update.DNSName}]
 		if !ok {
 			return fmt.Errorf("failed to get record identifiers for %q", update.DNSName)
 		}
@@ -469,9 +469,9 @@ func (p *Provider) updateEndpoints(ctx context.Context, identifiers map[string]i
 	return nil
 }
 
-func (p *Provider) deleteEndpoints(ctx context.Context, identifiers map[string]identifierTuple, deletions []*endpoint.Endpoint) error {
+func (p *Provider) deleteEndpoints(ctx context.Context, identifiers map[[2]string]identifierTuple, deletions []*endpoint.Endpoint) error {
 	for _, deletion := range deletions {
-		tuple, ok := identifiers[deletion.DNSName]
+		tuple, ok := identifiers[[2]string{deletion.RecordType, deletion.DNSName}]
 		if !ok {
 			return fmt.Errorf("failed to get record identifiers for %q", deletion.DNSName)
 		}
@@ -513,8 +513,8 @@ type identifierTuple struct {
 // all zones and records and returning a map of DNS names to identifiers. This allows us to get
 // all the identifiers in a single call (or paginated calls) and then use them to update or delete
 // records.
-func (p *Provider) fetchIdentifiers(ctx context.Context, dnsNames []string) (map[string]identifierTuple, error) {
-	identifiers := make(map[string]identifierTuple)
+func (p *Provider) fetchIdentifiers(ctx context.Context, dnsTypesAndNames [][2]string) (map[[2]string]identifierTuple, error) {
+	identifiers := make(map[[2]string]identifierTuple)
 
 	zones, err := p.fetchZones(ctx)
 	if err != nil {
@@ -526,10 +526,10 @@ func (p *Provider) fetchIdentifiers(ctx context.Context, dnsNames []string) (map
 		domainNames = append(domainNames, zone.Domain)
 	}
 
-	for _, dnsName := range dnsNames {
-		recordName, domainName, ok := extractRecordComponents(domainNames, dnsName)
+	for _, dnsTypeAndName := range dnsTypesAndNames {
+		recordName, domainName, ok := extractRecordComponents(domainNames, dnsTypeAndName[1])
 		if !ok {
-			return nil, fmt.Errorf("record %q cannot be handled, no matching zone found", dnsName)
+			return nil, fmt.Errorf("record %q %q cannot be handled, no matching zone found", dnsTypeAndName[0], dnsTypeAndName[1])
 		}
 
 		for _, zone := range zones {
@@ -538,11 +538,11 @@ func (p *Provider) fetchIdentifiers(ctx context.Context, dnsNames []string) (map
 			}
 
 			for _, record := range zone.Records {
-				if record.Name != recordName {
+				if record.Name != recordName || record.Type.String() != dnsTypeAndName[0] {
 					continue
 				}
 
-				identifiers[dnsName] = identifierTuple{
+				identifiers[dnsTypeAndName] = identifierTuple{
 					ZoneID:   zone.ID,
 					RecordID: record.ID,
 				}
