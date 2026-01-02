@@ -275,13 +275,21 @@ func (p *Provider) applyChangesDryRun(ctx context.Context, changes *plan.Changes
 				slog.Int64("id", tuple.RecordID),
 				slog.Any("name", ep.DNSName),
 				slog.Any("type", ep.RecordType),
-				slog.Any("value", ep.Targets),
+				slog.Any("targets", ep.Targets),
 				slog.Any("ttl", ep.RecordTTL),
+				slog.Any("set_identifier", ep.SetIdentifier),
+				slog.Any("labels", ep.Labels),
+				slog.Any("provider_specific", ep.ProviderSpecific),
 			),
 			slog.Group("updated",
 				slog.Int64("id", tuple.RecordID),
-				slog.Any("value", new.Targets),
+				slog.Any("name", new.DNSName),
+				slog.Any("type", new.RecordType),
+				slog.Any("targets", new.Targets),
 				slog.Any("ttl", new.RecordTTL),
+				slog.Any("set_identifier", new.SetIdentifier),
+				slog.Any("labels", new.Labels),
+				slog.Any("provider_specific", new.ProviderSpecific),
 			))
 	}
 
