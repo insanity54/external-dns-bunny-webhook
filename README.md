@@ -8,7 +8,7 @@ This repository contains an ExternalDNS provider for [bunny.net](https://bunny.n
 
 ## Important
 
-This provider is not officially supported by Bunny.net, but is maintained by [Chris Grimmett](https://grimtech.net) for the community. If you encounter any issues, please open an issue on this repository. This provider is working in production for my use at https://confettihat.com, so I want to keep it running smoothly.
+This provider is not officially supported by Bunny.net, but is maintained by [Chris Grimmett](https://grimtech.net). This provider is working in production for my use at https://confettihat.com, so I want to keep it running smoothly for myself and the community. If you encounter any issues, please open an issue on this repository. 
 
 This is an fork of <https://nossa.ee/~talya/external-dns-bunny-webhook>, without nix.
 
