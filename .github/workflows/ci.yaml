@@ -5,7 +5,7 @@ on:
 
 jobs:
   build:
-    uses: insanity54/external-dns-bunny-webhook/.github/workflows/docker-build.yaml@main
+    uses: insanity54/external-dns-bunny-webhook/.github/workflows/docker.yaml@main
     with:
       context: .
       platforms: linux/amd64,linux/arm64
