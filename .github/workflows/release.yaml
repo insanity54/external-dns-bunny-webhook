@@ -37,7 +37,7 @@ jobs:
         with:
           registry: ghcr.io
           username: insanity54
-          password: ${{ secrets.GH_TOKEN_REPO }}
+          password: ${{ secrets.GHCR_DEPLOY_TOKEN }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -52,4 +52,4 @@ jobs:
           version: latest
           args: release --clean
         env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN_REPO }}
+          GITHUB_TOKEN: ${{ secrets.GHCR_DEPLOY_TOKEN }}
