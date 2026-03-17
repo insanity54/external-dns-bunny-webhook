@@ -67,7 +67,7 @@ dockers:
   - use: buildx
     goos: linux
     goarch: amd64
-    dockerfile: buildx.Dockerfile
+    dockerfile: Dockerfile
     image_templates:
       - 'insanity54/external-dns-bunny-webhook:latest-amd64'
       - 'insanity54/external-dns-bunny-webhook:{{ .Tag }}-amd64'
@@ -91,7 +91,7 @@ dockers:
   - use: buildx
     goos: linux
     goarch: arm64
-    dockerfile: buildx.Dockerfile
+    dockerfile: Dockerfile
     image_templates:
       - 'insanity54/external-dns-bunny-webhook:latest-arm64'
       - 'insanity54/external-dns-bunny-webhook:{{ .Tag }}-arm64'
@@ -116,7 +116,7 @@ dockers:
     goos: linux
     goarch: arm
     goarm: '7'
-    dockerfile: buildx.Dockerfile
+    dockerfile: Dockerfile
     image_templates:
       - 'insanity54/external-dns-bunny-webhook:latest-armv7'
       - 'insanity54/external-dns-bunny-webhook:{{ .Tag }}-armv7'

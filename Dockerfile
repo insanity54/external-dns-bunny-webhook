@@ -1,22 +1,17 @@
-FROM docker.io/library/golang:1.26-alpine AS builder
-ARG PKG=github.com/insanity54/external-dns-bunny-webhook
-ARG VERSION=dev
-ARG REVISION=dev
+# syntax=docker/dockerfile:1.2
+FROM golang:1-alpine AS builder
 
-RUN echo 'nobody:x:65534:65534:Nobody:/:' > /tmp/passwd && \
-    apk add --no-cache upx=5.0.2-r0
+RUN apk --no-cache --no-progress add git ca-certificates tzdata make \
+    && update-ca-certificates \
+    && rm -rf /var/cache/apk/*
 
-WORKDIR /build
-COPY . .
-RUN CGO_ENABLED=0 go build -ldflags "-s -w -X main.Version=${VERSION} -X main.Gitsha=${REVISION}" ./cmd/webhook && \
-    upx --best --lzma webhook
-
+# syntax=docker/dockerfile:1.2
+# Create a minimal container to run a Golang static binary
 FROM scratch
 
-COPY --from=builder /tmp/passwd /etc/passwd
+COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY --from=builder --chmod=555 /build/webhook /external-dns-unifi-webhook
+COPY whoami /
 
-USER 65534
-EXPOSE 8888/tcp
 ENTRYPOINT ["/external-dns-unifi-webhook"]
+EXPOSE 80
