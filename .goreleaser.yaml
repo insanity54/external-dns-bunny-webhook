@@ -2,7 +2,7 @@ project_name: external-dns-bunny-webhook
 
 builds:
   - main: ./cmd/webhook/
-  - binary: external-dns-bunny-webhook
+    binary: external-dns-bunny-webhook
     goos:
       - linux
     goarch:
