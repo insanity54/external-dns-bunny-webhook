@@ -9,10 +9,10 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/contaimlabs/external-dns-bunny-webhook/internal/bunny"
-	"github.com/contaimlabs/external-dns-bunny-webhook/internal/health"
-	"github.com/contaimlabs/external-dns-bunny-webhook/internal/webhook"
 	"github.com/hashicorp/go-cleanhttp"
+	"github.com/insanity54/external-dns-bunny-webhook/internal/bunny"
+	"github.com/insanity54/external-dns-bunny-webhook/internal/health"
+	"github.com/insanity54/external-dns-bunny-webhook/internal/webhook"
 	"github.com/sethvargo/go-envconfig"
 	"github.com/thejerf/suture/v4"
 )

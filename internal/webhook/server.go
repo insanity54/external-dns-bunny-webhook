@@ -64,7 +64,9 @@ func (s *Server) Serve(ctx context.Context) error {
 			log.Fatal(err)
 		}
 
-		l.Close()
+		if err := l.Close(); err != nil { // Check the error here
+			log.Fatal(err)
+		}
 	}()
 
 	s.setHealthy(true)

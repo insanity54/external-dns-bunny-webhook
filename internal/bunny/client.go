@@ -52,6 +52,13 @@ type ListZonesResponse struct {
 	HasMoreItems bool    `json:"HasMoreItems"`
 }
 
+func closeResponseBody(resp *http.Response, errs oops.OopsErrorBuilder) {
+	if err := resp.Body.Close(); err != nil {
+		_ = errs.Wrapf(err, "failed to close response body") // Ignore the error from Wrapf
+		slog.Error("Error closing response body", slog.Any("error", err))
+	}
+}
+
 func (c *BunnyClient) ListZones(ctx context.Context, r ListZonesRequest) (*ListZonesResponse, error) {
 	if r.PerPage < 1 {
 		r.PerPage = 1000
@@ -86,7 +93,7 @@ func (c *BunnyClient) ListZones(ctx context.Context, r ListZonesRequest) (*ListZ
 		return nil, errs.Wrapf(err, "failed to execute request")
 	}
 
-	defer resp.Body.Close()
+	defer closeResponseBody(resp, errs)
 
 	if resp.StatusCode != http.StatusOK {
 		return nil, handleUnexpectedResponse(errs, resp)
@@ -136,7 +143,7 @@ func (c *BunnyClient) CreateRecord(ctx context.Context, zoneID string, r CreateR
 		return nil, errs.Wrapf(err, "failed to send request")
 	}
 
-	defer resp.Body.Close()
+	defer closeResponseBody(resp, errs)
 
 	if resp.StatusCode != http.StatusCreated {
 		return nil, handleUnexpectedResponse(errs, resp)
@@ -166,7 +173,7 @@ func (c *BunnyClient) DeleteRecord(ctx context.Context, zoneID int64, recordID i
 		return errs.Wrapf(err, "failed to send request")
 	}
 
-	defer resp.Body.Close()
+	defer closeResponseBody(resp, errs)
 
 	if resp.StatusCode != http.StatusNoContent {
 		return handleUnexpectedResponse(errs, resp)
@@ -204,7 +211,7 @@ func (c *BunnyClient) UpdateRecord(ctx context.Context, zoneID int64, recordID i
 		return errs.Wrapf(err, "failed to send request")
 	}
 
-	defer resp.Body.Close()
+	defer closeResponseBody(resp, errs)
 
 	if resp.StatusCode != http.StatusNoContent {
 		return handleUnexpectedResponse(errs, resp)

@@ -21,11 +21,6 @@ var (
 	_ provider.Provider = (*Provider)(nil)
 )
 
-const (
-	providerValueZoneId   = "BunnyZoneID"
-	providerValueRecordId = "BunnyRecordID"
-)
-
 type Options struct {
 	APIKey               string   `env:"API_KEY, required"`
 	DryRun               bool     `env:"DRY_RUN, default=false"`
@@ -109,11 +104,28 @@ func (p *Provider) Records(ctx context.Context) ([]*endpoint.Endpoint, error) {
 }
 
 func (p *Provider) ApplyChanges(ctx context.Context, changes *plan.Changes) error {
-	errs := oops.In("Provider").
-		With("creates", len(changes.Create)).
-		With("deletes", len(changes.Delete)).
-		With("updates", len(changes.UpdateNew)).
-		Span("ApplyChanges")
+
+	if changes == nil || !changes.HasChanges() {
+		slog.Debug("Skipping request to apply changes because no changes are present")
+		return nil
+	}
+
+	errs := oops.In("Provider").Span("ApplyChanges")
+
+	var creates, deletes, updates int
+	if changes != nil {
+		creates = len(changes.Create)
+		deletes = len(changes.Delete)
+		updates = len(changes.UpdateNew)
+	}
+
+	errs = errs.With("creates", creates).
+		With("deletes", deletes).
+		With("updates", updates)
+
+	if p.Options.DryRun {
+		return p.applyChangesDryRun(ctx, changes)
+	}
 
 	if changes == nil || !changes.HasChanges() {
 		slog.Debug("Skipping request to apply changes because no changes are present")
@@ -178,11 +190,23 @@ func (p *Provider) ApplyChanges(ctx context.Context, changes *plan.Changes) erro
 }
 
 func (p *Provider) applyChangesDryRun(ctx context.Context, changes *plan.Changes) error {
-	errs := oops.In("Provider").
-		With("creates", len(changes.Create)).
-		With("deletes", len(changes.Delete)).
-		With("updates", len(changes.UpdateNew)).
-		Span("applyChangesDryRun")
+	if changes == nil || !changes.HasChanges() {
+		slog.Debug("DRY RUN: Skipping request to apply changes because no changes are present")
+		return nil
+	}
+
+	errs := oops.In("Provider").Span("ApplyChanges")
+
+	var creates, deletes, updates int
+	if changes != nil {
+		creates = len(changes.Create)
+		deletes = len(changes.Delete)
+		updates = len(changes.UpdateNew)
+	}
+
+	errs = errs.With("creates", creates).
+		With("deletes", deletes).
+		With("updates", updates)
 
 	if changes == nil || !changes.HasChanges() {
 		slog.Debug("DRY RUN: Skipping request to apply changes because no changes are present")
@@ -486,8 +510,7 @@ func (p *Provider) deleteEndpoints(ctx context.Context, identifiers map[[2]strin
 
 		opts, err := providerSpecificOptionsFromEndpoint(deletion)
 		if err != nil {
-			// We can ignore this error as we are deleting the record anyway and we'll always
-			// get a usable opts struct (no nil pointers).
+			slog.Debug("Ignoring endpoint options error while deleting", slog.Any("error", err))
 		}
 
 		err = p.client.DeleteRecord(ctx, tuple.ZoneID, tuple.RecordID)

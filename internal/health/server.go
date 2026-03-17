@@ -65,7 +65,9 @@ func (s *Server) Serve(ctx context.Context) error {
 			log.Fatal(err)
 		}
 
-		l.Close()
+		if err := l.Close(); err != nil {
+			log.Fatal(err)
+		}
 	}()
 
 	if err := srv.Serve(l); err != nil {
@@ -86,5 +88,7 @@ func (s *Server) handleHealthz(w http.ResponseWriter, r *http.Request) {
 
 func writeResponse(w http.ResponseWriter, status int, message string) {
 	w.WriteHeader(status)
-	w.Write([]byte(message))
+	if _, err := w.Write([]byte(message)); err != nil {
+		slog.Error("Failed to write response", slog.Any("error", err))
+	}
 }
