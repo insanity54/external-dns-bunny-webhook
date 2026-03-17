@@ -1,4 +1,6 @@
-# ExternalDNS - bunny.net provider
+# Kubernetes ExternalDNS - bunny.net provider
+
+[![Docker Build and Push (QEMU)](https://github.com/insanity54/external-dns-bunny-webhook/actions/workflows/docker.yaml/badge.svg?branch=main)](https://github.com/insanity54/external-dns-bunny-webhook/actions/workflows/docker.yaml)
 
 [ExternalDNS](https://github.com/kubernetes-sigs/external-dns) synchronises
 exposed Kubernetes Services and Ingresses with DNS providers.
