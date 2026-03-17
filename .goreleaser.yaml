@@ -1,2 +1,138 @@
+project_name: external-dns-bunny-webhook
+
 builds:
   - main: ./cmd/webhook/
+  - binary: external-dns-bunny-webhook
+    goos:
+      - linux
+    goarch:
+      - amd64
+      - arm
+      - arm64
+    goarm:
+      - '7'
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - '^docs:'
+      - '^doc:'
+      - '^chore:'
+      - '^chore(deps):'
+      - '^test:'
+      - '^tests:'
+
+archives:
+  - id: external-dns-bunny-webhook
+    name_template: '{{ .ProjectName }}_v{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm}}v{{ .Arm }}{{ end }}'
+    format: tar.gz
+    files:
+      - LICENSE
+
+docker_manifests:
+  - name_template: 'insanity54/external-dns-bunny-webhook:{{ .Tag }}'
+    image_templates:
+      - 'insanity54/external-dns-bunny-webhook:{{ .Tag }}-amd64'
+      - 'insanity54/external-dns-bunny-webhook:{{ .Tag }}-arm64'
+      - 'insanity54/external-dns-bunny-webhook:{{ .Tag }}-armv7'
+  - name_template: 'insanity54/external-dns-bunny-webhook:latest'
+    image_templates:
+      - 'insanity54/external-dns-bunny-webhook:{{ .Tag }}-amd64'
+      - 'insanity54/external-dns-bunny-webhook:{{ .Tag }}-arm64'
+      - 'insanity54/external-dns-bunny-webhook:{{ .Tag }}-armv7'
+  - name_template: 'insanity54/external-dns-bunny-webhook:v{{ .Major }}.{{ .Minor }}'
+    image_templates:
+      - 'insanity54/external-dns-bunny-webhook:v{{ .Major }}.{{ .Minor }}-amd64'
+      - 'insanity54/external-dns-bunny-webhook:v{{ .Major }}.{{ .Minor }}-arm64'
+      - 'insanity54/external-dns-bunny-webhook:v{{ .Major }}.{{ .Minor }}-armv7'
+
+  - name_template: 'ghcr.io/insanity54/external-dns-bunny-webhook:{{ .Tag }}'
+    image_templates:
+      - 'ghcr.io/insanity54/external-dns-bunny-webhook:{{ .Tag }}-amd64'
+      - 'ghcr.io/insanity54/external-dns-bunny-webhook:{{ .Tag }}-arm64'
+      - 'ghcr.io/insanity54/external-dns-bunny-webhook:{{ .Tag }}-armv7'
+  - name_template: 'ghcr.io/insanity54/external-dns-bunny-webhook:latest'
+    image_templates:
+      - 'ghcr.io/insanity54/external-dns-bunny-webhook:{{ .Tag }}-amd64'
+      - 'ghcr.io/insanity54/external-dns-bunny-webhook:{{ .Tag }}-arm64'
+      - 'ghcr.io/insanity54/external-dns-bunny-webhook:{{ .Tag }}-armv7'
+  - name_template: 'ghcr.io/insanity54/external-dns-bunny-webhook:v{{ .Major }}.{{ .Minor }}'
+    image_templates:
+      - 'ghcr.io/insanity54/external-dns-bunny-webhook:v{{ .Major }}.{{ .Minor }}-amd64'
+      - 'ghcr.io/insanity54/external-dns-bunny-webhook:v{{ .Major }}.{{ .Minor }}-arm64'
+      - 'ghcr.io/insanity54/external-dns-bunny-webhook:v{{ .Major }}.{{ .Minor }}-armv7'
+
+dockers:
+  - use: buildx
+    goos: linux
+    goarch: amd64
+    dockerfile: buildx.Dockerfile
+    image_templates:
+      - 'insanity54/external-dns-bunny-webhook:latest-amd64'
+      - 'insanity54/external-dns-bunny-webhook:{{ .Tag }}-amd64'
+      - 'insanity54/external-dns-bunny-webhook:v{{ .Major }}.{{ .Minor }}-amd64'
+      - 'ghcr.io/insanity54/external-dns-bunny-webhook:latest-amd64'
+      - 'ghcr.io/insanity54/external-dns-bunny-webhook:{{ .Tag }}-amd64'
+      - 'ghcr.io/insanity54/external-dns-bunny-webhook:v{{ .Major }}.{{ .Minor }}-amd64'
+    build_flag_templates:
+      - '--pull'
+      # https://github.com/opencontainers/image-spec/blob/main/annotations.md#pre-defined-annotation-keys
+      - '--label=org.opencontainers.image.title={{.ProjectName}}'
+      - '--label=org.opencontainers.image.description=Kubernetes external-dns webhook provider for bunny.net DNS'
+      - '--label=org.opencontainers.image.source={{.GitURL}}'
+      - '--label=org.opencontainers.image.url={{.GitURL}}'
+      - '--label=org.opencontainers.image.documentation={{.GitURL}}'
+      - '--label=org.opencontainers.image.created={{.Date}}'
+      - '--label=org.opencontainers.image.revision={{.FullCommit}}'
+      - '--label=org.opencontainers.image.version={{.Version}}'
+      - '--platform=linux/amd64'
+
+  - use: buildx
+    goos: linux
+    goarch: arm64
+    dockerfile: buildx.Dockerfile
+    image_templates:
+      - 'insanity54/external-dns-bunny-webhook:latest-arm64'
+      - 'insanity54/external-dns-bunny-webhook:{{ .Tag }}-arm64'
+      - 'insanity54/external-dns-bunny-webhook:v{{ .Major }}.{{ .Minor }}-arm64'
+      - 'ghcr.io/insanity54/external-dns-bunny-webhook:latest-arm64'
+      - 'ghcr.io/insanity54/external-dns-bunny-webhook:{{ .Tag }}-arm64'
+      - 'ghcr.io/insanity54/external-dns-bunny-webhook:v{{ .Major }}.{{ .Minor }}-arm64'
+    build_flag_templates:
+      - '--pull'
+      # https://github.com/opencontainers/image-spec/blob/main/annotations.md#pre-defined-annotation-keys
+      - '--label=org.opencontainers.image.title={{.ProjectName}}'
+      - '--label=org.opencontainers.image.description=Kubernetes external-dns webhook provider for bunny.net DNS'
+      - '--label=org.opencontainers.image.source={{.GitURL}}'
+      - '--label=org.opencontainers.image.url={{.GitURL}}'
+      - '--label=org.opencontainers.image.documentation={{.GitURL}}'
+      - '--label=org.opencontainers.image.created={{.Date}}'
+      - '--label=org.opencontainers.image.revision={{.FullCommit}}'
+      - '--label=org.opencontainers.image.version={{.Version}}'
+      - '--platform=linux/arm64'
+
+  - use: buildx
+    goos: linux
+    goarch: arm
+    goarm: '7'
+    dockerfile: buildx.Dockerfile
+    image_templates:
+      - 'insanity54/external-dns-bunny-webhook:latest-armv7'
+      - 'insanity54/external-dns-bunny-webhook:{{ .Tag }}-armv7'
+      - 'insanity54/external-dns-bunny-webhook:v{{ .Major }}.{{ .Minor }}-armv7'
+      - 'ghcr.io/insanity54/external-dns-bunny-webhook:latest-armv7'
+      - 'ghcr.io/insanity54/external-dns-bunny-webhook:{{ .Tag }}-armv7'
+      - 'ghcr.io/insanity54/external-dns-bunny-webhook:v{{ .Major }}.{{ .Minor }}-armv7'
+    build_flag_templates:
+      - '--pull'
+      # https://github.com/opencontainers/image-spec/blob/main/annotations.md#pre-defined-annotation-keys
+      - '--label=org.opencontainers.image.title={{.ProjectName}}'
+      - '--label=org.opencontainers.image.description=Kubernetes external-dns webhook provider for bunny.net DNS'
+      - '--label=org.opencontainers.image.source={{.GitURL}}'
+      - '--label=org.opencontainers.image.url={{.GitURL}}'
+      - '--label=org.opencontainers.image.documentation={{.GitURL}}'
+      - '--label=org.opencontainers.image.created={{.Date}}'
+      - '--label=org.opencontainers.image.revision={{.FullCommit}}'
+      - '--label=org.opencontainers.image.version={{.Version}}'
+      - '--platform=linux/arm/v7'
