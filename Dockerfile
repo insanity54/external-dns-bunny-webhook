@@ -11,7 +11,7 @@ FROM scratch
 
 COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-COPY external-dns-unifi-webhook /
+COPY external-dns-bunny-webhook /
 
-ENTRYPOINT ["/external-dns-unifi-webhook"]
+ENTRYPOINT ["/external-dns-bunny-webhook"]
 EXPOSE 80
