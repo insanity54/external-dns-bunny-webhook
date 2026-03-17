@@ -1,0 +1,27 @@
+
+sources:
+  - service
+  - ingress
+provider:
+  name: webhook
+  webhook:
+    securityContext:
+      runAsNonRoot: true
+      runAsUser: 1000
+      runAsGroup: 1000
+      allowPrivilegeEscalation: false
+      seccompProfile:
+        type: RuntimeDefault
+      capabilities:
+        drop:
+          - 'ALL'
+    image:
+      repository: docker.io/insanity54/external-dns-bunny-webhook
+      tag: main
+    env:
+      - name: BUNNY_API_KEY
+        valueFrom:
+          secretKeyRef:
+            name: bunny-credentials
+            key: api-key
+txtPrefix: "%{record_type}.external-dns."

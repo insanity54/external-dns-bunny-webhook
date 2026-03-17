@@ -8,16 +8,13 @@ This repository contains an ExternalDNS provider for [bunny.net](https://bunny.n
 
 ## Important
 
-This is a fork of <https://github.com/contaimlabs/external-dns-bunny-webhook>.
-As of writing, the upstream appears to be unmaintained.
+This provider is not officially supported by Bunny.net, but is maintained by [Chris Grimmett](https://grimtech.net) for the community. If you encounter any issues, please open an issue on this repository. This provider is working in production for my use at https://confettihat.com, so I want to keep it running smoothly.
 
-This provider is not officially supported by [bunny.net](https://bunny.net).
-
+This is an fork of <https://nossa.ee/~talya/external-dns-bunny-webhook>, without nix.
 
 ## Deployment
 
-An example of deploying the provider with Flux can be seen at
-<https://nossa.ee/~talya/vyx/blob/main/-/flux/cassax/external-dns.yaml>.
+See examples directory for an example of deploying the provider with kluctl/Helm.
 
 Configuration options are available below and may be set using environment
 variables on the webhook container.
