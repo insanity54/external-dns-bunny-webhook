@@ -1,0 +1,17 @@
+name: CI
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    uses: insanity54/external-dns-bunny-webhook/.github/workflows/docker-build.yaml@main
+    with:
+      context: .
+      platforms: linux/amd64,linux/arm64
+      ghcr-enable: true
+      dockerhub-enable: true
+    secrets:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}

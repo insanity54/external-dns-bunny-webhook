@@ -6,6 +6,8 @@ name: Docker Build and Push (QEMU)
 # the ./reusable-docker-build.yaml uses native builds on amd64 and arm64 GitHub Runners (it's faster)
 
 on:
+
+
   # REUSABLE WORKFLOW with INPUTS
   # to keep this workflow simple, assumptions are made:
   # - only able to push to Docker Hub and/or GHCR (GHCR by default)
@@ -66,7 +68,7 @@ on:
         required: false
         type: string
         # common ones: linux/amd64,linux/arm64,linux/arm/v7
-        default: linux/amd64
+        default: linux/amd64,linux/arm64
       push:
         description: Push image to registry(s)
         required: false
@@ -97,12 +99,12 @@ on:
         type: string
 
     secrets:
-      dockerhub_username:
+      DOCKERHUB_USERNAME:
         description: Docker Hub username
-        required: false
-      dockerhub_token:
-        description: Docker Hub token
-        required: false
+        required: true
+      DOCKERHUB_TOKEN:
+        description: Docker Hub personal access token
+        required: true
 
     outputs:
       image-tag:
@@ -148,8 +150,8 @@ jobs:
         if: inputs.dockerhub-enable
         uses: docker/login-action@b45d80f862d83dbcd57f89517bcf500b2ab88fb2 #v4.0.0
         with:
-          username: ${{ secrets.dockerhub-username }}
-          password: ${{ secrets.dockerhub-token }}
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Login to GHCR
         if: inputs.ghcr-enable
@@ -187,7 +189,7 @@ jobs:
           # https://github.com/docker/build-push-action/blob/master/docs/advanced/cache.md#cache-backend-api
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          push: ${{ inputs.push }}
+          push: ${{ inputs.push && github.event_name != 'pull_request' }}
           tags: ${{ steps.docker_meta.outputs.tags }}
           labels: ${{ steps.docker_meta.outputs.labels }}
           # add attestations for provenance and sbom (bleeding edge BuildKit features)
