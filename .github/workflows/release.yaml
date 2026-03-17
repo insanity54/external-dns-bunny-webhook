@@ -37,7 +37,7 @@ jobs:
         with:
           registry: ghcr.io
           username: insanity54
-          password: ${{ secrets.GHCR_TOKEN }}
+          password: ${{ secrets.GH_TOKEN_REPO }}
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
