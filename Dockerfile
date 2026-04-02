@@ -14,4 +14,4 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 COPY external-dns-bunny-webhook /
 
 ENTRYPOINT ["/external-dns-bunny-webhook"]
-EXPOSE 80
+EXPOSE 8888

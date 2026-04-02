@@ -2,6 +2,8 @@
 
 [![Main](https://github.com/insanity54/external-dns-bunny-webhook/actions/workflows/ci.yaml/badge.svg?branch=main)](https://github.com/insanity54/external-dns-bunny-webhook/actions/workflows/ci.yaml)
 
+![Alt](https://repobeats.axiom.co/api/embed/84439b4fb9d24956578d7e6f92953965a005b6bb.svg "Repobeats analytics image")
+
 [ExternalDNS](https://github.com/kubernetes-sigs/external-dns) synchronises
 exposed Kubernetes Services and Ingresses with DNS providers.
 
